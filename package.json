@@ -6,12 +6,22 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "check:sessions": "node --experimental-strip-types scripts/check-sessions.mjs && node --experimental-strip-types scripts/check-tradingview.mjs && node --experimental-strip-types scripts/check-tradingview-report.mjs && node --experimental-strip-types scripts/check-session-metrics.mjs"
   },
   "dependencies": {
+    "@base-ui/react": "1.6.0",
+    "@e965/xlsx": "0.20.3",
+    "@supabase/ssr": "0.12.1",
+    "@supabase/supabase-js": "2.110.5",
+    "@tabler/icons-react": "^3.44.0",
+    "class-variance-authority": "0.7.1",
+    "clsx": "2.1.1",
     "next": "16.2.10",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "shadcn": "^4.13.0",
+    "tailwind-merge": "3.6.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -22,5 +32,8 @@
     "eslint-config-next": "16.2.10",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "overrides": {
+    "postcss": "8.5.19"
   }
 }
