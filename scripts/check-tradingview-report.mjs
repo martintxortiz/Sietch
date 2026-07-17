@@ -11,6 +11,7 @@ const report = parseTradingViewReport([
       headers,
       ["Initial capital", 100_000, null, null, null, null, null],
       ["Net profit", 2_500, 2.5, 3_000, 3, -500, -0.5],
+      ["Average run-up duration (close-to-close)", "3 days", null, null, null, null, null],
       ["Annualized return (CAGR)", null, 10.2, null, 12, null, -2],
     ],
   },
@@ -34,7 +35,7 @@ const report = parseTradingViewReport([
 
 assert.equal(report.accountSize, 100_000)
 assert.equal(report.tradeCount, 42)
-assert.equal(report.metrics.length, 22)
+assert.equal(report.metrics.length, 23)
 assert.deepEqual(
   report.metrics.find(
     (metric) => metric.metric_key === "annualized_return_cagr" && metric.scope === "all",
@@ -53,6 +54,12 @@ assert.equal(
     (metric) => metric.metric_key === "average_bars_in_trades" && metric.scope === "short",
   )?.unit,
   "bars",
+)
+assert.equal(
+  report.metrics.find(
+    (metric) => metric.metric_key === "average_run_up_duration_close_to_close",
+  )?.value,
+  259_200,
 )
 
 const csvFile = { name: "session.csv", size: 10 }

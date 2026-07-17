@@ -5,8 +5,8 @@ import {
   IconBookFilled,
   IconCaretUpDownFilled,
   IconCreditCardFilled,
-  IconMessageCircleFilled,
 } from "@tabler/icons-react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -18,7 +18,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export type AppMode = "backtest" | "journal" | "signal" | "wallet";
+export type AppMode = "backtest" | "journal" | "wallet";
 
 const modes = [
   {
@@ -27,7 +27,6 @@ const modes = [
     icon: IconAnalyzeFilled,
   },
   { value: "journal", label: "JOURNAL", icon: IconBookFilled },
-  { value: "signal", label: "SIGNAL", icon: IconMessageCircleFilled },
   { value: "wallet", label: "WALLET", icon: IconCreditCardFilled },
 ] as const;
 
@@ -37,22 +36,24 @@ interface ModeSelectorProps {
 }
 
 export function ModeSelector({ mode, onModeChange }: ModeSelectorProps) {
+  const [open, setOpen] = useState(false);
   const selectedMode = modes.find(({ value }) => value === mode) ?? modes[0];
   const SelectedIcon = selectedMode.icon;
 
   function selectMode(nextMode: AppMode) {
+    setOpen(false);
     if (nextMode === mode) return;
     onModeChange(nextMode);
   }
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger
         aria-label={`Mode: ${selectedMode.label}`}
         render={
           <Button
             variant="ghost"
-            className="sidebar-shell-reveal group/mode size-11 cursor-pointer justify-center !p-3 !capitalize sm:h-10 sm:w-full sm:justify-start"
+            className="sidebar-shell-reveal group/mode size-11 cursor-pointer justify-center !p-3 !capitalize sm:h-10 sm:w-full sm:justify-start text-foreground/80"
           />
         }
       >
@@ -74,7 +75,7 @@ export function ModeSelector({ mode, onModeChange }: ModeSelectorProps) {
       </DropdownMenuTrigger>
       <DropdownMenuContent
         sideOffset={1}
-        className="w-44 rounded-3xl bg-muted py-1.5 sm:w-(--anchor-width)"
+        className="w-44 sm:w-(--anchor-width)"
       >
         <DropdownMenuGroup>
           <DropdownMenuRadioGroup

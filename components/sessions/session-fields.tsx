@@ -3,13 +3,18 @@
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "@/components/ui/combobox"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group"
 import type { StrategyOption } from "@/lib/strategies"
 
 import { TagCombobox } from "./tag-combobox"
@@ -35,16 +40,16 @@ export function SessionFields({
   value: SessionFormValues
   onChange: (value: SessionFormValues) => void
 }) {
-  const strategyItems = strategies.map(({ id: strategyId, name }) => ({
-    label: name,
-    value: strategyId,
-  }))
+  const selectedStrategy = strategies.find(
+    (strategy) => strategy.id === value.strategyId,
+  ) ?? null
 
   return (
     <FieldGroup className="gap-4">
       <Field>
         <FieldLabel htmlFor={`${id}-name`}>Name</FieldLabel>
         <Input
+          className="h-10 px-3"
           id={`${id}-name`}
           maxLength={120}
           onChange={(event) => onChange({ ...value, name: event.target.value })}
@@ -54,29 +59,36 @@ export function SessionFields({
       </Field>
       <FieldGroup className="grid gap-4 sm:grid-cols-2">
         <Field>
-          <FieldLabel>Strategy</FieldLabel>
-          <Select
-            items={strategyItems}
-            onValueChange={(strategyId) => onChange({ ...value, strategyId: strategyId ?? "" })}
-            value={value.strategyId}
+          <FieldLabel htmlFor={`${id}-strategy`}>Strategy</FieldLabel>
+          <Combobox
+            autoHighlight
+            isItemEqualToValue={(strategy, selected) => strategy.id === selected.id}
+            itemToStringLabel={(strategy) => strategy.name}
+            itemToStringValue={(strategy) => strategy.id}
+            items={strategies}
+            onValueChange={(strategy) => onChange({
+              ...value,
+              strategyId: strategy?.id ?? "",
+            })}
+            value={selectedStrategy}
           >
-            <SelectTrigger className="w-full" id={`${id}-strategy`}>
-              <SelectValue placeholder="Select strategy" />
-            </SelectTrigger>
-            <SelectContent alignItemWithTrigger={false}>
-              <SelectGroup>
+            <ComboboxInput id={`${id}-strategy`} placeholder="Find a strategy" />
+            <ComboboxContent>
+              <ComboboxList>
                 {strategies.map((strategy) => (
-                  <SelectItem key={strategy.id} value={strategy.id}>
+                  <ComboboxItem key={strategy.id} value={strategy}>
                     {strategy.name}
-                  </SelectItem>
+                  </ComboboxItem>
                 ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+              </ComboboxList>
+              <ComboboxEmpty>No strategies found.</ComboboxEmpty>
+            </ComboboxContent>
+          </Combobox>
         </Field>
         <Field>
           <FieldLabel htmlFor={`${id}-pair`}>Pair</FieldLabel>
           <Input
+            className="h-10 px-3"
             id={`${id}-pair`}
             maxLength={40}
             onChange={(event) => onChange({ ...value, pair: event.target.value })}
@@ -85,26 +97,33 @@ export function SessionFields({
           />
         </Field>
       </FieldGroup>
-      <Field>
-        <FieldLabel htmlFor={`${id}-account-size`}>Account size</FieldLabel>
-        <Input
-          id={`${id}-account-size`}
-          min="0.01"
-          onChange={(event) => onChange({ ...value, accountSize: event.target.value })}
-          placeholder="Filled automatically from XLSX"
-          step="any"
-          type="number"
-          value={value.accountSize}
-        />
-      </Field>
-      <Field>
-        <FieldLabel>Tags</FieldLabel>
-        <TagCombobox
-          onChange={(tags) => onChange({ ...value, tags })}
-          options={tagOptions}
-          value={value.tags}
-        />
-      </Field>
+      <FieldGroup className="grid items-start gap-4 sm:grid-cols-2">
+        <Field>
+          <FieldLabel htmlFor={`${id}-account-size`}>Account size</FieldLabel>
+          <InputGroup className="h-10">
+            <InputGroupAddon>$</InputGroupAddon>
+            <InputGroupInput
+              id={`${id}-account-size`}
+              inputMode="decimal"
+              min="0.01"
+              onChange={(event) => onChange({ ...value, accountSize: event.target.value })}
+              placeholder="From XLSX"
+              step="any"
+              type="number"
+              value={value.accountSize}
+            />
+          </InputGroup>
+        </Field>
+        <Field>
+          <FieldLabel htmlFor={`${id}-tags`}>Tags</FieldLabel>
+          <TagCombobox
+            id={`${id}-tags`}
+            onChange={(tags) => onChange({ ...value, tags })}
+            options={tagOptions}
+            value={value.tags}
+          />
+        </Field>
+      </FieldGroup>
     </FieldGroup>
   )
 }

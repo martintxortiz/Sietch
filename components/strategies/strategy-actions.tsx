@@ -1,7 +1,9 @@
 "use client"
 
-import { IconDots, IconEdit } from "@tabler/icons-react"
+import { IconArchive, IconDots, IconEdit, IconTrash } from "@tabler/icons-react"
+import { useRouter } from "next/navigation"
 import { type FormEvent, useState } from "react"
+import { toast } from "sonner"
 
 import { StrategyFields } from "@/components/strategies/strategy-fields"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -27,19 +29,29 @@ import type { BacktestStrategyRow } from "@/lib/supabase/database.types"
 export function StrategyActions({
   strategy,
   onChanged,
+  tagOptions,
+  afterRemoveHref,
 }: {
   strategy: BacktestStrategyRow
-  onChanged: () => void | Promise<void>
+  onChanged?: () => void | Promise<void>
+  tagOptions: string[]
+  afterRemoveHref?: string
 }) {
+  const router = useRouter()
   const [open, setOpen] = useState(false)
   const [name, setName] = useState(strategy.name)
   const [description, setDescription] = useState(strategy.description ?? "")
+  const [tags, setTags] = useState(strategy.tags)
   const [error, setError] = useState("")
   const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteOpen, setDeleteOpen] = useState(false)
+  const [archiving, setArchiving] = useState(false)
 
   function openEdit() {
     setName(strategy.name)
     setDescription(strategy.description ?? "")
+    setTags(strategy.tags)
     setError("")
     setOpen(true)
   }
@@ -55,6 +67,7 @@ export function StrategyActions({
       .update({
         description: description.trim() || null,
         name: name.trim(),
+        tags,
       })
       .eq("id", strategy.id)
 
@@ -70,7 +83,45 @@ export function StrategyActions({
 
     setOpen(false)
     setSaving(false)
-    await onChanged()
+    toast.success("Strategy updated")
+    await onChanged?.()
+    router.refresh()
+  }
+
+  async function archive() {
+    setError("")
+    setArchiving(true)
+    const { error: archiveError } = await createClient().rpc("archive_strategy", {
+      p_strategy_id: strategy.id,
+    })
+    if (archiveError) {
+      setError(archiveError.message)
+      toast.error("Could not archive strategy", { description: archiveError.message })
+    } else {
+      toast.success("Strategy archived")
+      await onChanged?.()
+      if (afterRemoveHref) router.push(afterRemoveHref)
+    }
+    setArchiving(false)
+  }
+
+  async function remove() {
+    setError("")
+    setDeleting(true)
+    const { error: deleteError } = await createClient().rpc("delete_strategy", {
+      p_strategy_id: strategy.id,
+    })
+    if (deleteError) {
+      setError(deleteError.message)
+      toast.error("Could not delete strategy", { description: deleteError.message })
+    }
+    else {
+      setDeleteOpen(false)
+      toast.success("Strategy deleted")
+      await onChanged?.()
+      if (afterRemoveHref) router.push(afterRemoveHref)
+    }
+    setDeleting(false)
   }
 
   return (
@@ -82,11 +133,19 @@ export function StrategyActions({
         >
           <IconDots data-icon="inline-start" />
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-32 rounded-3xl bg-muted py-1.5" sideOffset={1}>
+        <DropdownMenuContent align="end" className="w-32" sideOffset={1}>
           <DropdownMenuGroup>
             <DropdownMenuItem onClick={openEdit}>
               <IconEdit />
               Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem disabled={archiving} onClick={() => void archive()}>
+              <IconArchive />
+              {archiving ? "Archiving..." : "Archive"}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setDeleteOpen(true)} variant="destructive">
+              <IconTrash />
+              Delete
             </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>
@@ -105,6 +164,9 @@ export function StrategyActions({
               name={name}
               onDescriptionChange={setDescription}
               onNameChange={setName}
+              onTagsChange={setTags}
+              tagOptions={tagOptions}
+              tags={tags}
             />
             {error && (
               <Alert variant="destructive">
@@ -121,6 +183,31 @@ export function StrategyActions({
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={deleteOpen} onOpenChange={(nextOpen) => !deleting && setDeleteOpen(nextOpen)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>DELETE STRATEGY</DialogTitle>
+            <DialogDescription>
+              This only works when no sessions use {strategy.name}.
+            </DialogDescription>
+          </DialogHeader>
+          {error && (
+            <Alert variant="destructive">
+              <AlertTitle>Could not delete strategy</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          <DialogFooter>
+            <Button disabled={deleting} onClick={() => setDeleteOpen(false)} type="button" variant="ghost">
+              Cancel
+            </Button>
+            <Button disabled={deleting} onClick={() => void remove()} type="button" variant="destructive">
+              {deleting ? "Deleting..." : "Delete strategy"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>

@@ -2,6 +2,7 @@
 
 import { IconFileUpload, IconPlus } from "@tabler/icons-react"
 import { type DragEvent, type FormEvent, useRef, useState } from "react"
+import { toast } from "sonner"
 
 import {
   SessionFields,
@@ -201,6 +202,7 @@ export function UploadSessionDialog({
 
     setOpen(false)
     reset()
+    toast.success("Session uploaded")
     await onUploaded()
   }
 

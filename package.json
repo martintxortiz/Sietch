@@ -1,13 +1,14 @@
 {
   "name": "backview",
   "version": "0.1.0",
+  "type": "module",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "check:sessions": "node --experimental-strip-types scripts/check-sessions.mjs && node --experimental-strip-types scripts/check-tradingview.mjs && node --experimental-strip-types scripts/check-tradingview-report.mjs && node --experimental-strip-types scripts/check-session-metrics.mjs"
+    "check:sessions": "node --experimental-strip-types scripts/check-tradingview.mjs && node --experimental-strip-types scripts/check-tradingview-report.mjs && node --experimental-strip-types scripts/check-session-metrics.mjs"
   },
   "dependencies": {
     "@base-ui/react": "1.6.0",
@@ -17,10 +18,12 @@
     "@tabler/icons-react": "^3.44.0",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
+    "echarts": "6.1.0",
     "next": "16.2.10",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "shadcn": "^4.13.0",
+    "sonner": "2.0.7",
     "tailwind-merge": "3.6.0"
   },
   "devDependencies": {

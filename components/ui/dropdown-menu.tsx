@@ -38,7 +38,7 @@ function DropdownMenuContent({
         <MenuPrimitive.Popup
           data-slot="dropdown-menu-content"
           className={cn(
-            "max-h-(--available-height) w-(--anchor-width) min-w-32 origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 outline-none transition-[opacity,transform] duration-100 data-starting-style:scale-95 data-starting-style:opacity-0 data-ending-style:scale-95 data-ending-style:opacity-0",
+            "max-h-(--available-height) w-(--anchor-width) min-w-32 overflow-x-hidden overflow-y-auto rounded-3xl bg-muted p-1.5 text-popover-foreground shadow-md ring-1 ring-foreground/10 outline-none",
             className,
           )}
           {...props}
@@ -67,13 +67,17 @@ function DropdownMenuLabel({
 
 function DropdownMenuItem({
   className,
+  variant = "default",
   ...props
-}: MenuPrimitive.Item.Props) {
+}: MenuPrimitive.Item.Props & {
+  variant?: "default" | "destructive"
+}) {
   return (
     <MenuPrimitive.Item
       data-slot="dropdown-menu-item"
+      data-variant={variant}
       className={cn(
-        "relative flex h-10 cursor-pointer items-center gap-3 rounded-full px-3 text-sm font-medium text-muted-foreground outline-none select-none transition-colors duration-150 focus:bg-foreground/15 focus:text-foreground data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "relative flex h-10 cursor-pointer items-center gap-3 rounded-full px-3 text-sm font-medium text-muted-foreground outline-none select-none transition-colors duration-150 focus:bg-foreground/15 focus:text-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className
       )}
       {...props}
@@ -142,20 +146,7 @@ function DropdownMenuSubContent({
       alignOffset={alignOffset}
       side={side}
       sideOffset={sideOffset}
-      className={cn("w-48 rounded-3xl bg-muted py-1.5", className)}
-      {...props}
-    />
-  )
-}
-
-function DropdownMenuSeparator({
-  className,
-  ...props
-}: MenuPrimitive.Separator.Props) {
-  return (
-    <MenuPrimitive.Separator
-      data-slot="dropdown-menu-separator"
-      className={cn("-mx-1 my-1 h-px bg-border", className)}
+      className={cn("w-48", className)}
       {...props}
     />
   )
@@ -201,7 +192,6 @@ export {
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
-  DropdownMenuSeparator,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,

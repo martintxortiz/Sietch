@@ -6,7 +6,7 @@ import {
   IconCalendarMonthFilled,
   IconChartBubbleFilled,
   IconChessRookFilled,
-  IconEditFilled, IconHome2Filled,
+  IconHome2Filled,
   IconLayoutListFilled,
   IconPencilFilled,
   IconVersionsFilled,
@@ -16,7 +16,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useOptimistic } from "react";
 
 import { type AppMode, ModeSelector } from "@/components/mode-selector";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const backtestRoutes = [
@@ -43,12 +43,9 @@ export function AppSidebar() {
   const routeMode: AppMode =
     pathname === "/wallet"
       ? "wallet"
-      : pathname === "/signal"
-      ? "signal"
       : pathname.startsWith("/journal")
       ? "journal"
-      : modeParam === "signal" ||
-          modeParam === "journal" ||
+      : modeParam === "journal" ||
           modeParam === "wallet"
         ? modeParam
         : "backtest";
@@ -71,9 +68,7 @@ export function AppSidebar() {
     router.push(
       nextMode === "journal"
         ? "/journal/accounts"
-        : nextMode === "signal"
-          ? "/signal"
-          : nextMode === "wallet"
+        : nextMode === "wallet"
             ? "/wallet"
             : "/dashboard",
     );
@@ -99,9 +94,9 @@ export function AppSidebar() {
                   aria-label={label}
                   className={cn(
                     buttonVariants({ variant: "ghost" }),
-                    "size-11 justify-center !p-3 !capitalize sm:h-10 sm:w-full sm:justify-start",
+                    "size-11 !text-foreground/80 justify-center !p-3 !capitalize sm:h-10 sm:w-full sm:justify-start",
                     active &&
-                      "bg-white text-background hover:bg-white hover:text-background",
+                      "bg-muted hover:bg-muted/90 !text-foreground font-bold",
                   )}
                 >
                   <Icon data-icon="inline-start" />
@@ -109,22 +104,6 @@ export function AppSidebar() {
                 </Link>
               );
             })}
-          </div>
-        )}
-        {mode === "signal" && (
-          <div
-            key={mode}
-            className="sidebar-mode-content flex min-h-0 flex-1 flex-col gap-[1px]"
-          >
-            <Button
-              variant="ghost"
-              aria-label="New chat"
-              className="size-11 justify-center !p-3 !capitalize sm:h-10 sm:w-full sm:justify-start"
-            >
-              <IconEditFilled data-icon="inline-start" />
-              <span className="hidden pl-1.5 sm:inline">NEW CHAT</span>
-            </Button>
-            <div aria-label="Chat history" className="min-h-0 flex-1" />
           </div>
         )}
         <Link

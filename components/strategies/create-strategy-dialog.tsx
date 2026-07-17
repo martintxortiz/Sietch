@@ -2,6 +2,7 @@
 
 import { IconPlus } from "@tabler/icons-react"
 import { type FormEvent, useState } from "react"
+import { toast } from "sonner"
 
 import { StrategyFields } from "@/components/strategies/strategy-fields"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -19,18 +20,22 @@ import { createClient } from "@/lib/supabase/client"
 
 export function CreateStrategyDialog({
   onCreated,
+  tagOptions,
 }: {
   onCreated: () => void | Promise<void>
+  tagOptions: string[]
 }) {
   const [open, setOpen] = useState(false)
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
+  const [tags, setTags] = useState<string[]>([])
   const [error, setError] = useState("")
   const [saving, setSaving] = useState(false)
 
   function reset() {
     setName("")
     setDescription("")
+    setTags([])
     setError("")
     setSaving(false)
   }
@@ -53,6 +58,7 @@ export function CreateStrategyDialog({
     const { error: insertError } = await supabase.from("strategies").insert({
       description: description.trim() || null,
       name: name.trim(),
+      tags,
       user_id: user.id,
     })
 
@@ -68,6 +74,7 @@ export function CreateStrategyDialog({
 
     setOpen(false)
     reset()
+    toast.success("Strategy created")
     await onCreated()
   }
 
@@ -95,6 +102,9 @@ export function CreateStrategyDialog({
             name={name}
             onDescriptionChange={setDescription}
             onNameChange={setName}
+            onTagsChange={setTags}
+            tagOptions={tagOptions}
+            tags={tags}
           />
           {error && (
             <Alert variant="destructive">

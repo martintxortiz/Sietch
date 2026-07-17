@@ -103,6 +103,7 @@ export type Database = {
           return_percent: number
           session_id: string
           side: string
+          tags: string[]
           trade_number: number
         }
         Insert: Omit<
@@ -206,17 +207,21 @@ export type Database = {
       }
       strategies: {
         Row: {
+          archived_at: string | null
           created_at: string
           description: string | null
           id: string
           name: string
+          tags: string[]
           user_id: string
         }
         Insert: {
+          archived_at?: string | null
           created_at?: string
           description?: string | null
           id?: string
           name: string
+          tags?: string[]
           user_id: string
         }
         Update: Partial<Database["public"]["Tables"]["strategies"]["Insert"]>
@@ -247,10 +252,91 @@ export type Database = {
         Relationships: []
       }
     }
-    Views: { [_ in never]: never }
+    Views: {
+      backtest_session_explorer: {
+        Row: {
+          account_size: number | null
+          created_at: string | null
+          id: string | null
+          name: string | null
+          pair: string | null
+          period_days: number | null
+          pnl_percent: number | null
+          report_filename: string | null
+          report_path: string | null
+          strategy_id: string | null
+          strategy_name: string | null
+          tags: string[] | null
+          trade_count: number | null
+        }
+        Relationships: []
+      }
+      backtest_session_filter_options: {
+        Row: {
+          kind: string | null
+          value: string | null
+        }
+        Relationships: []
+      }
+      backtest_upload_calendar: {
+        Row: {
+          upload_count: number | null
+          upload_date: string | null
+        }
+        Relationships: []
+      }
+      backtest_trade_explorer: {
+        Row: {
+          entry_at: string | null
+          entry_signal: string | null
+          exit_at: string | null
+          exit_signal: string | null
+          id: number | null
+          net_pnl: number | null
+          pair: string | null
+          session_id: string | null
+          session_name: string | null
+          session_tags: string[] | null
+          side: string | null
+          strategy_id: string | null
+          strategy_name: string | null
+          tags: string[] | null
+          trade_number: number | null
+        }
+        Relationships: []
+      }
+      backtest_trade_tag_options: {
+        Row: {
+          tag: string | null
+        }
+        Relationships: []
+      }
+      strategy_explorer: {
+        Row: {
+          archived_at: string | null
+          created_at: string | null
+          description: string | null
+          id: string | null
+          name: string | null
+          net_pnl: number | null
+          pairs: string[] | null
+          pnl_percent: number | null
+          session_count: number | null
+          tags: string[] | null
+          trade_count: number | null
+          user_id: string | null
+          win_rate: number | null
+        }
+        Relationships: []
+      }
+    }
     Functions: {
       archive_backtest_session: {
         Args: { p_session_id: string }
+        Returns: undefined
+      }
+      archive_strategy: {
+        Args: { p_strategy_id: string }
         Returns: undefined
       }
       create_backtest_session: {
@@ -276,6 +362,10 @@ export type Database = {
           p_start_date: string
         }
         Returns: string
+      }
+      delete_strategy: {
+        Args: { p_strategy_id: string }
+        Returns: undefined
       }
       import_backtest_session: {
         Args: {
@@ -335,6 +425,12 @@ export type BacktestStrategyRow =
   Database["public"]["Tables"]["strategies"]["Row"]
 export type BacktestTradeRow =
   Database["public"]["Tables"]["backtest_trades"]["Row"]
+export type BacktestTradeExplorerRow =
+  Database["public"]["Views"]["backtest_trade_explorer"]["Row"]
+export type BacktestSessionExplorerRow =
+  Database["public"]["Views"]["backtest_session_explorer"]["Row"]
+export type StrategyExplorerRow =
+  Database["public"]["Views"]["strategy_explorer"]["Row"]
 export type BrokerAccountRow = Omit<
   Database["public"]["Tables"]["broker_accounts"]["Row"],
   "credential_secret_id"

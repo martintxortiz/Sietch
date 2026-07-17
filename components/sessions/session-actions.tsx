@@ -7,6 +7,7 @@ import {
   IconFileSpreadsheet,
 } from "@tabler/icons-react"
 import { type FormEvent, useState } from "react"
+import { toast } from "sonner"
 
 import {
   SessionFields,
@@ -174,6 +175,7 @@ export function SessionActions({
     if (nextReportPath && session.reportPath) {
       await supabase.storage.from(backtestImportsBucket).remove([session.reportPath])
     }
+    toast.success("Session updated")
     await onChanged()
   }
 
@@ -185,9 +187,12 @@ export function SessionActions({
     })
     if (archiveError) {
       setError(archiveError.message)
+      toast.error("Could not archive session", { description: archiveError.message })
       setArchiving(false)
       return
     }
+    setArchiving(false)
+    toast.success("Session archived")
     await onChanged()
   }
 
@@ -200,7 +205,7 @@ export function SessionActions({
         >
           <IconDots data-icon="inline-start" />
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" sideOffset={1} className="w-36 rounded-3xl bg-muted py-1.5">
+        <DropdownMenuContent align="end" className="w-36" sideOffset={1}>
           <DropdownMenuGroup>
             <DropdownMenuItem onClick={openEdit}>
               <IconEdit />

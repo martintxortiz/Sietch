@@ -138,8 +138,9 @@ function metricUnit(column: string, metricKey: string): TradingViewMetricUnit {
 function numericValue(cell: Cell, metricKey: string) {
   if (cell === null || cell === undefined || cell === "") return null
   if (typeof cell === "number") return Number.isFinite(cell) ? cell : null
-  if (cell instanceof Date && metricKey.includes("duration")) {
-    return Math.max(0, (cell.getTime() - Date.UTC(1899, 11, 30)) / 1000)
+  if (metricKey.includes("duration")) {
+    const duration = durationSeconds(cell)
+    if (duration !== null) return duration
   }
 
   const parsed = Number(String(cell).replace(/[,$%\s]/g, "").replace("−", "-"))
@@ -147,6 +148,29 @@ function numericValue(cell: Cell, metricKey: string) {
     throw new Error(`Invalid value for ${metricKey.replaceAll("_", " ")}.`)
   }
   return parsed
+}
+
+function durationSeconds(cell: Cell) {
+  if (cell instanceof Date) {
+    return Math.max(0, (cell.getTime() - Date.UTC(1899, 11, 30)) / 1000)
+  }
+
+  const value = String(cell).trim()
+  const parts = [...value.matchAll(/(\d+(?:\.\d+)?)\s*(days?|hours?|minutes?|seconds?)/gi)]
+  if (!parts.length || value.replace(/(\d+(?:\.\d+)?)\s*(days?|hours?|minutes?|seconds?)/gi, "").replace(/[\s,]+/g, "")) {
+    return null
+  }
+
+  return parts.reduce((total, [, amount, unit]) => {
+    const multiplier = unit.toLowerCase().startsWith("day")
+      ? 86_400
+      : unit.toLowerCase().startsWith("hour")
+        ? 3_600
+        : unit.toLowerCase().startsWith("minute")
+          ? 60
+          : 1
+    return total + Number(amount) * multiplier
+  }, 0)
 }
 
 function metricValue(
